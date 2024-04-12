@@ -1,30 +1,32 @@
-import { useState } from "react"
-import { Button  } from "antd"
-import "~style.css"
+import { useState } from "react";
+import { Button } from "antd";
+import "~style.css";
 
 function IndexPopup() {
-  const [data, setData] = useState("")
+  const [data, setData] = useState("");
   return (
     <div
       style={{
         display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
         flexDirection: "column",
         padding: 16,
         width: "200px",
       }}
       // className="w-200 flex items-center"
-      >
-      <h2>
-        Welcome 
-      </h2>
+    >
+      <h2 className="mx-auto">Welcome</h2>
 
       <Button
+        className="w-full mt-4"
         onClick={() => {
           chrome.tabs.create({
-            url: "./tabs/delta-flyer.html"
-          })
-        }}>
-        第一个页面
+            url: "./tabs/delta-flyer.html",
+          });
+        }}
+      >
+        one page
       </Button>
       {/* <button
         onClick={() => {
@@ -47,7 +49,7 @@ function IndexPopup() {
         啊？
       </button> */}
     </div>
-  )
+  );
 }
 
-export default IndexPopup
+export default IndexPopup;
