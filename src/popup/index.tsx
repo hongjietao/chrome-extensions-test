@@ -1,4 +1,6 @@
 import { useState } from "react"
+import { Button  } from "antd"
+import "~style.css"
 
 function IndexPopup() {
   const [data, setData] = useState("")
@@ -9,19 +11,21 @@ function IndexPopup() {
         flexDirection: "column",
         padding: 16,
         width: "200px",
-      }}>
+      }}
+      // className="w-200 flex items-center"
+      >
       <h2>
         Welcome 
       </h2>
 
-      <button
+      <Button
         onClick={() => {
           chrome.tabs.create({
             url: "./tabs/delta-flyer.html"
           })
         }}>
         第一个页面
-      </button>
+      </Button>
       {/* <button
         onClick={() => {
           chrome.tabs.query(

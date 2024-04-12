@@ -1,8 +1,6 @@
-This is a [Plasmo extension](https://docs.plasmo.com/) project bootstrapped with [`plasmo init`](https://www.npmjs.com/package/plasmo).
+基于 [Plasmo extension](https://docs.plasmo.com/) 的浏览器插件 demo
 
 ## Getting Started
-
-First, run the development server:
 
 ```bash
 pnpm dev
