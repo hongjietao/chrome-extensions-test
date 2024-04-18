@@ -6,12 +6,13 @@ import ReactJson from "react-json-view";
 import { themeArr } from "./constant";
 
 const { TextArea } = Input;
+const COMMON_BIZ_DATA_LOCAL_KEY = "COMMON_BIZ_DATA_LOCAL";
 
 const DeltaFlyerPage = () => {
   const [form] = Form.useForm();
   const [data, setData] = useState("");
   const [theme, setTheme] = useState(undefined);
-  const [collapsed, setCollapsed] = useState(0);
+  const [collapsed, setCollapsed] = useState(2);
   const safePrase = (data: string | object) => {
     try {
       if (typeof data === "string" && isValidJSONObject(data)) {
@@ -113,7 +114,16 @@ const DeltaFlyerPage = () => {
       ) {
         message.error("Invalid common_biz_data");
       }
-      setData(safePrase(common_biz_data));
+      console.log("===>>> common_biz_data", common_biz_data);
+      if (!common_biz_data) {
+        // 如果common_biz_data不存在，则解析原始数据
+
+        setData(safePrase(raw_data));
+
+        message.info("在JSON里面没找到common_biz_data, 解析原始对象");
+      } else {
+        setData(safePrase(common_biz_data));
+      }
       console.log(
         "===>>> common_bizData",
         typeof common_biz_data,
@@ -135,6 +145,43 @@ const DeltaFlyerPage = () => {
       message.error("Copied to clipboard error: ");
     }
   }
+
+  function saveDataToLocalStorage(key, data) {
+    localStorage.setItem(key, JSON.stringify(data));
+    message.success("Saved to local storage successfully");
+  }
+
+  const saveData = (data: {
+    time_stamp: number;
+    common_biz_data: any;
+    desc: string;
+  }) => {
+    try {
+      const oldData = localStorage.getItem(COMMON_BIZ_DATA_LOCAL_KEY);
+      const parsedData = oldData ? JSON.parse(oldData) : [];
+      console.log(
+        "Saved to local storage",
+        typeof oldData,
+        parsedData,
+        oldData
+      );
+      parsedData.push(data);
+      localStorage.setItem(
+        COMMON_BIZ_DATA_LOCAL_KEY,
+        JSON.stringify(parsedData)
+      );
+      message.success("Saved to local storage successfully");
+    } catch (e) {
+      message.error("Saved to local storage Error");
+      console.error(e);
+    }
+  };
+
+  function getDataFromLocalStorage(key) {
+    const data = localStorage.getItem(key);
+    return data ? JSON.parse(data) : null;
+  }
+
   return (
     <>
       <Form
@@ -162,21 +209,6 @@ const DeltaFlyerPage = () => {
                 从数据中获取 common_biz_data
               </Button>
 
-              {/* <Form.Item label="主题色">
-                <Select
-                  // showSearch
-                  // className="pl-2 w-1/10"
-                  placeholder="选择主题色"
-                  optionFilterProp="children"
-                  onChange={(value) => {
-                    setTheme(value);
-                  }}
-                  allowClear
-                  // onSearch={onSearch}
-                  // filterOption={filterOption}
-                  options={themeArr.map((value) => ({ value, label: value }))}
-                />
-              </Form.Item> */}
               <Form.Item
                 label="折叠层级"
                 style={{ width: "200px", marginLeft: "10px" }}
@@ -184,10 +216,27 @@ const DeltaFlyerPage = () => {
                 <InputNumber
                   min={0}
                   max={10}
+                  value={collapsed}
                   onChange={(v) => setCollapsed(v)}
                   placeholder="请输入"
                 />
               </Form.Item>
+
+              <Button
+                style={{
+                  marginLeft: "10px",
+                }}
+                type="primary"
+                onClick={() => {
+                  saveData({
+                    time_stamp: new Date().getTime(),
+                    common_biz_data: data,
+                    desc: "common_biz_data",
+                  });
+                }}
+              >
+                暂存数据
+              </Button>
             </div>
             <div className="ring-2 ring-blue-100 ring-inset rounded p-2">
               <ReactJson
@@ -195,7 +244,7 @@ const DeltaFlyerPage = () => {
                 theme={theme}
                 quotesOnKeys={false}
                 displayDataTypes={false}
-                sortKeys={true}
+                // sortKeys={true}
                 src={safePrase(data)}
                 collapsed={collapsed}
               ></ReactJson>
