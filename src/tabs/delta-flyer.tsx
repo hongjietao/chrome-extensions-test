@@ -1,14 +1,17 @@
 import "~style.css";
 
-import { Input, Button, Form, message } from "antd";
+import { Input, Button, Form, message, Select, InputNumber } from "antd";
 import { useState } from "react";
 import ReactJson from "react-json-view";
+import { themeArr } from "./constant";
 
 const { TextArea } = Input;
 
 const DeltaFlyerPage = () => {
   const [form] = Form.useForm();
   const [data, setData] = useState("");
+  const [theme, setTheme] = useState(undefined);
+  const [collapsed, setCollapsed] = useState(0);
   const safePrase = (data: string | object) => {
     try {
       if (typeof data === "string" && isValidJSONObject(data)) {
@@ -134,9 +137,15 @@ const DeltaFlyerPage = () => {
   }
   return (
     <>
-      <div className="flex flex-row w-full h-300 mt-10">
-        <div className="basis-1/2 p-2">
-          <Form form={form} layout="vertical" autoComplete="off">
+      <Form
+        form={form}
+        layout="inline"
+        autoComplete="off"
+        // labelCol={{ span: 8 }}
+        // wrapperCol={{ span: 16 }}
+      >
+        <div className="flex flex-row w-full ">
+          <div className="basis-1/2 p-2">
             <Form.Item name={"raw_data"}>
               <TextArea
                 rows={40}
@@ -145,20 +154,55 @@ const DeltaFlyerPage = () => {
                 showCount
               />
             </Form.Item>
-          </Form>
-        </div>
+          </div>
 
-        <div className="basis-1/2 h-300 overflow-y-scroll p-2">
-          <div className="mb-6">
-            <Button onClick={() => getCommonBizData()}>
-              从数据中获取 common_biz_data
-            </Button>
-          </div>
-          <div className="ring-2 ring-blue-500 ring-inset rounded p-2">
-            <ReactJson src={safePrase(data)}></ReactJson>
+          <div className="basis-1/2 h-screen overflow-y-scroll p-2 relative">
+            <div className="mb-6 sticky top-0 bg-slate-50 p-2 flex">
+              <Button onClick={() => getCommonBizData()}>
+                从数据中获取 common_biz_data
+              </Button>
+
+              {/* <Form.Item label="主题色">
+                <Select
+                  // showSearch
+                  // className="pl-2 w-1/10"
+                  placeholder="选择主题色"
+                  optionFilterProp="children"
+                  onChange={(value) => {
+                    setTheme(value);
+                  }}
+                  allowClear
+                  // onSearch={onSearch}
+                  // filterOption={filterOption}
+                  options={themeArr.map((value) => ({ value, label: value }))}
+                />
+              </Form.Item> */}
+              <Form.Item
+                label="折叠层级"
+                style={{ width: "200px", marginLeft: "10px" }}
+              >
+                <InputNumber
+                  min={0}
+                  max={10}
+                  onChange={(v) => setCollapsed(v)}
+                  placeholder="请输入"
+                />
+              </Form.Item>
+            </div>
+            <div className="ring-2 ring-blue-100 ring-inset rounded p-2">
+              <ReactJson
+                name={false}
+                theme={theme}
+                quotesOnKeys={false}
+                displayDataTypes={false}
+                sortKeys={true}
+                src={safePrase(data)}
+                collapsed={collapsed}
+              ></ReactJson>
+            </div>
           </div>
         </div>
-      </div>
+      </Form>
     </>
   );
 };
