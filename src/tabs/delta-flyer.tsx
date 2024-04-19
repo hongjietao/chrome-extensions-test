@@ -2,6 +2,10 @@ import "~style.css";
 
 import { Input, Button, Form, message, Select, InputNumber } from "antd";
 import { useState } from "react";
+/**
+ * https://www.npmjs.com/package/@uiw/react-json-view
+ * 后面换一下json展示的包
+ */
 import ReactJson from "react-json-view";
 import { themeArr } from "./constant";
 
@@ -22,6 +26,7 @@ const DeltaFlyerPage = () => {
       }
     } catch (e) {
       message.error(e);
+      return data;
     }
   };
 
@@ -95,6 +100,27 @@ const DeltaFlyerPage = () => {
 
     return result;
   }
+
+  function parseStringAsObject(input: string|object): any {  
+    try {  
+      const parsed =  safePrase(input);  
+      if (typeof parsed === 'object' && parsed !== null) {  
+        for (const key in parsed) {  
+          // if(key === '22') {
+          //   console.log(parsed[key])
+          // }
+          console.log('===>>> key', key, typeof key)
+          parsed[key] = parseStringAsObject(parsed[key]);   
+        }  
+      }  
+      return parsed;  
+    } catch (e) {  
+      // 如果解析失败，返回原始字符串  
+      console.log('===>>> 解析失败的字符串', input)
+      return input;  
+    }  
+  }
+
   const getCommonBizData = async () => {
     try {
       const formData = await form.validateFields();
@@ -118,7 +144,7 @@ const DeltaFlyerPage = () => {
       if (!common_biz_data) {
         // 如果common_biz_data不存在，则解析原始数据
 
-        setData(safePrase(raw_data));
+        setData(parseStringAsObject(raw_data));
 
         message.info("在JSON里面没找到common_biz_data, 解析原始对象");
       } else {
@@ -192,7 +218,7 @@ const DeltaFlyerPage = () => {
         // wrapperCol={{ span: 16 }}
       >
         <div className="flex flex-row w-full ">
-          <div className="basis-1/2 p-2">
+          <div className="basis-1/3 p-2">
             <Form.Item name={"raw_data"}>
               <TextArea
                 rows={40}
@@ -203,7 +229,7 @@ const DeltaFlyerPage = () => {
             </Form.Item>
           </div>
 
-          <div className="basis-1/2 h-screen overflow-y-scroll p-2 relative">
+          <div className="basis-2/3 h-screen overflow-y-scroll p-2 relative">
             <div className="mb-6 sticky top-0 bg-slate-50 p-2 flex">
               <Button onClick={() => getCommonBizData()}>
                 从数据中获取 common_biz_data
@@ -226,7 +252,6 @@ const DeltaFlyerPage = () => {
                 style={{
                   marginLeft: "10px",
                 }}
-                type="primary"
                 onClick={() => {
                   saveData({
                     time_stamp: new Date().getTime(),
@@ -244,6 +269,7 @@ const DeltaFlyerPage = () => {
                 theme={theme}
                 quotesOnKeys={false}
                 displayDataTypes={false}
+                // highlightUpdates={true}
                 // sortKeys={true}
                 src={safePrase(data)}
                 collapsed={collapsed}
