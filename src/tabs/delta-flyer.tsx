@@ -20,7 +20,12 @@ const DeltaFlyerPage = () => {
   const safePrase = (data: string | object) => {
     try {
       if (typeof data === "string" && isValidJSONObject(data)) {
-        return JSON.parse(data);
+        const parsedData = JSON.parse(data);
+        // 被解析的元素，不是对象不解析
+        if(typeof parsedData === 'object') {
+          return parsedData
+        } 
+        return data
       } else {
         return data;
       }
@@ -106,17 +111,12 @@ const DeltaFlyerPage = () => {
       const parsed =  safePrase(input);  
       if (typeof parsed === 'object' && parsed !== null) {  
         for (const key in parsed) {  
-          // if(key === '22') {
-          //   console.log(parsed[key])
-          // }
-          console.log('===>>> key', key, typeof key)
           parsed[key] = parseStringAsObject(parsed[key]);   
         }  
-      }  
+      }
       return parsed;  
     } catch (e) {  
       // 如果解析失败，返回原始字符串  
-      console.log('===>>> 解析失败的字符串', input)
       return input;  
     }  
   }
@@ -124,7 +124,6 @@ const DeltaFlyerPage = () => {
   const getCommonBizData = async () => {
     try {
       const formData = await form.validateFields();
-      console.log("===>>> formData", formData);
       const { raw_data } = formData;
       if (!isValidJSONObject(raw_data)) {
         message.error("Invalid raw data");
@@ -140,7 +139,6 @@ const DeltaFlyerPage = () => {
       ) {
         message.error("Invalid common_biz_data");
       }
-      console.log("===>>> common_biz_data", common_biz_data);
       if (!common_biz_data) {
         // 如果common_biz_data不存在，则解析原始数据
 
@@ -150,11 +148,6 @@ const DeltaFlyerPage = () => {
       } else {
         setData(safePrase(common_biz_data));
       }
-      console.log(
-        "===>>> common_bizData",
-        typeof common_biz_data,
-        safePrase(common_biz_data)
-      );
     } catch (e) {
       message.error(e?.message || "错误");
     }
@@ -185,12 +178,6 @@ const DeltaFlyerPage = () => {
     try {
       const oldData = localStorage.getItem(COMMON_BIZ_DATA_LOCAL_KEY);
       const parsedData = oldData ? JSON.parse(oldData) : [];
-      console.log(
-        "Saved to local storage",
-        typeof oldData,
-        parsedData,
-        oldData
-      );
       parsedData.push(data);
       localStorage.setItem(
         COMMON_BIZ_DATA_LOCAL_KEY,
@@ -248,7 +235,7 @@ const DeltaFlyerPage = () => {
                 />
               </Form.Item>
 
-              <Button
+              {/* <Button
                 style={{
                   marginLeft: "10px",
                 }}
@@ -261,7 +248,7 @@ const DeltaFlyerPage = () => {
                 }}
               >
                 暂存数据
-              </Button>
+              </Button> */}
             </div>
             <div className="ring-2 ring-blue-100 ring-inset rounded p-2">
               <ReactJson
